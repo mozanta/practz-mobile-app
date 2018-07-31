@@ -8,26 +8,21 @@ import { StackNavigator } from 'react-navigation';
 import Splash from './components/Splash';
 import Login from './components/Login';
 import Dash from './components/Home';
+import AvailableExams from './components/AvailableExams';
+import InvoicePage from './components/InvoicePage';
 import ExamDetails from './components/Exams/ExamDetails';
 import StartExam from './components/Exams/StartExam';
-import AvailableExams from './components/UI/AvailableExams';
-import NoteDetails from './components/UI/NoteDetails';
-export const SimpleApp = StackNavigator({
 
+//author hari import starts here
+import NoteDetails from './components/NoteDetails';
+import AttemptedExamDetails from './components/AttemptedExamDetails';
+export const Practz = StackNavigator({
+//author shibin navigation starts here
   Home: { screen: Splash },
   Login:{ screen: Login},
   StartExam:{ screen: StartExam},
-  AvailableExams:{ screen:AvailableExams},
-  NoteDetails:{ screen:NoteDetails},
-  ExamDetails:{ screen: ExamDetails,
-    navigationOptions: {
-      title: 'Ca 22',
-      headerTitleStyle:{
-        color:'#5e3f8c',
-        textAlign: 'center',
-        flex:1,
-      },
-    },},
+  ExamDetails:{ screen: ExamDetails},
+  AvailableExams:{ screen: AvailableExams},
   Dash:{ screen: Dash,
     navigationOptions: {
       headerLeft:null,
@@ -49,11 +44,18 @@ export const SimpleApp = StackNavigator({
     },
   },
 
+  //author hari navigation starts here
+  NoteDetails:{ screen:NoteDetails},
+  AttemptedExamDetails:{ screen: AttemptedExamDetails},
+  InvoicePage:{ screen: InvoicePage},
+
 });
+
+//nothing to change
 export default class App extends Component<{}> {
   render() {
     return (
-      <SimpleApp />
+      <Practz />
 
     );
   }
