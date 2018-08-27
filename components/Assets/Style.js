@@ -24,7 +24,7 @@ export default StyleSheet.create({
     marginRight: 2,
     marginTop: 10,
     padding: 10,
-    width: (Dimensions.get('window').width / 2) - 4,
+    width: (Dimensions.get('window').width / 1.5),
     height: Dimensions.get('window').height / 5,
 
   },
@@ -44,6 +44,11 @@ export default StyleSheet.create({
     width: (Dimensions.get('window').width) - 4,
 
   },
+  timmingBox:{
+    width: Dimensions.get('window').width,
+    padding: 10,
+
+  },
   examBox: {
     borderRadius: 5,
     borderBottomWidth: 0.8,
@@ -61,6 +66,16 @@ export default StyleSheet.create({
     backgroundColor: '#ffffff',
 
   },
+  questionButton:{
+    borderWidth: 1,
+    borderColor: 'white',
+    padding: 10,
+    width: Dimensions.get('screen').width/3.5,
+    alignItems: 'center',
+    borderRadius: 5,
+    marginRight: 10,
+    marginLeft: 10,
+  },
   questionBox:{
     padding: 10,
     width: (Dimensions.get('window').width) - 40,
@@ -76,10 +91,26 @@ export default StyleSheet.create({
     width: (Dimensions.get('window').width) - 40,
     flex: 1,
   },
+  attemptedBox: {
+    width: (Dimensions.get('window').width) - 10,
+    flex: 1,
+  },
   availableBox: {
     padding: 10,
     width: (Dimensions.get('window').width),
-    height: 35,
+  },
+  productLeftBox:{
+    borderBottomWidth: 1,
+    borderBottomColor: "#cfcfcf",
+    padding: 10,
+    marginLeft: 10,
+    flex:2,
+  },
+  productRightBox:{
+    flex:1,
+    borderBottomColor: "#cfcfcf",
+    padding: 10,
+    borderBottomWidth: 1,
   },
   sideBotton: {
     borderRadius: 8,
@@ -179,6 +210,22 @@ export default StyleSheet.create({
     marginLeft: 5,
     marginRight: 5,
   },
+  tickedNumber:{
+    alignItems: 'center',
+    top: 0,
+    justifyContent: 'center',
+    width: 16,
+    height: 16,
+    opacity: 1
+  },
+  timmer:{
+    alignItems: 'center',
+    top: 0,
+    justifyContent: 'center',
+    width: 50,
+    height: 50,
+    opacity: 1
+  },
   shadowContainer: {
     padding: 20,
     shadowColor: "#000000",
@@ -228,6 +275,23 @@ export default StyleSheet.create({
     padding: 20,
     backgroundColor: '#5E3F8C',
   },
+  totalWidth:{
+    width:Dimensions.get('screen').width-40,
+  },
+  buttonContainer: {
+    width:(Dimensions.get('screen').width/2)-20,
+    padding: 15,
+    marginRight: 10,
+    },
+  buttonContainerLogin: {
+      padding: 15,
+
+    },
+  buttonText: {
+    textAlign: 'center',
+    color: '#fff',
+    fontWeight: 'bold',
+  },
   //fonts
   topTitle: {
     fontFamily: 'Avenir, Heavy',
@@ -237,11 +301,38 @@ export default StyleSheet.create({
   lightFont: {
     fontFamily: 'Avenir, Light'
   },
+
+  heavyFont: {
+    fontFamily: 'Avenir, Heavy'
+  },
+  bookFont: {
+    fontFamily: 'Avenir, Book'
+  },
+  count: {
+    color: '#956FCE',
+    fontWeight: '600',
+  },
+  percentage: {
+    fontWeight: '500',
+    color: 'blue'
+  },
+  LargeFont: {
+    fontWeight: '500',
+  },
+  boldFont: {
+    fontWeight: 'bold',
+  },
   whiteFont: {
     color: '#ffffff'
   },
   blackFont: {
     color: '#000'
+  },
+  blueFont:{
+    color:'#956FCE'
+  },
+  brownFont:{
+    color:'#868686'
   },
   endFont: {
     fontWeight: 'bold',
@@ -251,6 +342,11 @@ export default StyleSheet.create({
     fontFamily: 'Avenir, Book',
     color: 'black'
   },
+  examInstructions:{
+    marginTop:10,
+    flex: 1,
+    flexWrap: 'wrap'
+  },
   indicator: {
     color: '#956FCE', fontWeight: '600'
   },
@@ -259,13 +355,37 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
+  tickedNumberColor:{
+    color: "rgba(255, 255, 255, 0.82)"
+  },
+  //font color
+  greenFont:{
+    color: '#6CC644',
+  },
+  redFont:{
+    color: '#E57373',
+  },
+  whiteFont: {
+    color: '#ffffff',
+  },
+  blackFont: {
+    color: '#000',
+  },
+  violetFont:{
+    color: '#5E3F8C',
+  },
   // colors
+  violet:{
+    backgroundColor: '#5E3F8C'
+  },
   red: {
     backgroundColor: '#F97157',
   },
   blue: {
     backgroundColor: '#7AC0F4',
+  },
+  lightBlue:{
+    backgroundColor: '#00BCD4',
   },
   brightBlue: {
     backgroundColor: '#00BCD4',
@@ -276,6 +396,20 @@ export default StyleSheet.create({
   orange: {
     backgroundColor: '#ed7f7d',
   },
+  white:{
+    backgroundColor: "#ffffff",
+  },
+  grey:{
+    backgroundColor:'#F6F4F8'
+  },
+  pink:{
+    backgroundColor:'#FBF7FD',
+    opacity:.75
+  },
+  lightgreen:{
+    backgroundColor:'#8BC34A'
+  },
+
   //flex direction
   flexrow: {
     flexDirection: 'row',
@@ -299,8 +433,113 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderColor: 'white',
     backgroundColor: '#b8b8b8'
-  }
+  },
+  //author hari
+  line:{
+    borderBottomColor: '#707070',
+    borderBottomWidth: 1,
+    opacity:.5,
+    marginTop:10
+},
+ margins:{
+   marginLeft:15,
+   marginTop:10,
+   marginRight:5
+ },
+  //splash style
+  Splash_img: {
+    left: 0,
+    width: (Dimensions.get('screen').width),
+    height: (Dimensions.get('screen').height),
+  },
+  Splash_logoContainer: {
+    flex: 1,
+    width: Dimensions.get('window').width,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 
+  //Login Style starts here
+  Login_container: {
+    flex: 1,
+    backgroundColor: '#36076b',
+  },
+  Login_img: {
+    width: (Dimensions.get('window').width / 2),
+    height: (Dimensions.get('window').height) / 6,
+    resizeMode: 'contain',
+  },
+  logoContainer: {
+    width: Dimensions.get('window').width,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  tabForm: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+    marginLeft: 8,
+    flexDirection: 'row',
+  },
+  innerTabForm: {
+    width: Dimensions.get('window').width / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+    marginLeft: 5,
+    paddingBottom: 15,
+    flexDirection: 'row',
+  },
+  selectedInnerTabForm: {
+    width: Dimensions.get('window').width / 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+    marginLeft: 5,
+    paddingBottom: 15,
+    flexDirection: 'row',
+    borderColor: '#8bc34a',
+    borderBottomWidth: 5,
+  },
+  Login_form: {
+    flex: 1.5,
+    marginTop: 20,
+    padding: 20,
+  },
+  Login_formTitle: {
+    flex: 2,
+    fontSize: 22,
+    textAlign: 'center',
+    color: 'black',
+  },
+  Login_input: {
+    height: 60,
+    padding: 20,
+    backgroundColor: '#fff',
+    marginBottom: 10,
+  },
+  Login_buttonContainer: {
+    backgroundColor: '#be36e7',
+    paddingVertical: 25,
+
+  },
+  Login_buttonText: {
+    textAlign: 'center',
+    color: '#fff',
+    fontWeight: 'bold',
+
+  },
+  Login_signIn:{
+    color: '#8bc34a',
+    fontWeight: '500',
+    fontSize: 12,
+  },
+  Login_forgotPass:{
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  }
 
 
 });

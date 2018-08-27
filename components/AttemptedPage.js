@@ -1,5 +1,7 @@
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import React, { Component } from 'react';
+import URL from './Url';
+import {logout} from './Functions';
 import styles from './Assets/Style';
 import {
   View,
@@ -18,16 +20,80 @@ export class AttemptedPage extends React.Component {
   constructor() {
     //inherit parent props
     super();
+    let attemptedList;
+    classthis=this;
     //create dynamic variables
     this.state = {
-      progress: 80,
+      HOME:URL.HOME,
+      ATTENDED_EXAM_PROGRESS:URL.ATTENDED_EXAM_PROGRESS,
+      userId:'0',
+      progress: 50,
       progressWithOnComplete: 0,
       progressCustomized: 0,
+      checkFlag:0,
+      attempted: [
+        {
+          "departmentName": "",
+          "securityLevel": "",
+          "attendedDate": "",
+          "examName": "",
+          "percentage": 0,
+          "examId": "",
+          "totalExamMarks": 0,
+          "totalMarks": 0
+        }
+      ]
     }
   }
-  increase = (key, value) => {
-    this.setState({
-      [key]: this.state[key] + value,
+
+  componentWillMount() {
+    AsyncStorage.multiGet(['userId']).then((data) => {
+      let user = data[0][1];
+      classthis.setState({
+        userId:user,
+      });
+      fetch(this.state.HOME+this.state.ATTENDED_EXAM_PROGRESS+'GwTemplateId=exam&limit=10&sortBy=createdDate&sortDirection=desc&userId='+data[0][1]+'')
+      .then(response =>  response.json())
+      .then(responseobj => {
+        if(responseobj==401){
+          this.setState({
+            attempted: [
+              {
+                "departmentName": "",
+                "securityLevel": "",
+                "attendedDate": "",
+                "examName": "",
+                "percentage": 0,
+                "examId": "",
+                "totalExamMarks": 0,
+                "totalMarks": 0
+              }
+            ]
+          });
+            logout();
+            this.props.navigation.navigate('Loign');
+        }else{
+            if(responseobj.data.length<1){
+              this.setState({
+                status:'No active exams available now. Please check later.',
+                view:'',
+                checkFlag:1,
+                availableExamList:[
+                  {
+                    "questionPaperName": "",
+                    "examProductName": "",
+                    "expiryDate": "",
+                  }
+                ]
+                });
+            }else{
+                this.setState({
+                  checkFlag:2,
+                  attempted:responseobj.data,
+                });
+              }
+          }
+        });
     });
   }
 
@@ -38,69 +104,76 @@ export class AttemptedPage extends React.Component {
       borderRadius: 0,
       borderColor: 'orange',
     };
+    {
+      this.state.checkFlag==1||this.state.checkFlag==0
+      ? attemptedList = this.state.attempted.map((exam) => {
+          return(<View key={(exam, index) => index.toString()} ></View>);
+        })
+      :
+      attemptedList = this.state.attempted.map((exam) => {
+         let bgcolor;
+         if(exam.percentage<30){
+           let bgcolor='#E57373';
+          }else{
+              let bgcolor='#956FCE';
+            }
+
+        return(
+          <View key={(exam, index) => index.toString()}>
+            <TouchableOpacity style={[styles.announcementBox, styles.flexrow]}
+                onPress={() => this.props.navigation.navigate('AttemptedExamDetails',{eid:exam.examId})}>
+              <View style={[styles.flexcol, styles.innerTextBox]} >
+                <Text style={[styles.heavyFont,styles.boldFont,styles.blackFont]}>{exam.examName}</Text>
+                {exam.percentage == 100?
+                  <View>
+                    <Text style={[styles.lightFont,styles.percentage,styles.greenFont]} >{exam.percentage}%</Text>
+                    <ProgressBarAnimated
+                      width={barWidth}
+                      value={exam.percentage}
+                      backgroundColorOnComplete="#6CC644"
+                      backgroundColor="#6CC644"
+                    />
+                  </View>
+                :(exam.percentage <= 30 ?
+                    <View>
+                      <Text style={[styles.lightFont,styles.percentage,styles.redFont]} >{exam.percentage}%</Text>
+                      <ProgressBarAnimated
+                        width={barWidth}
+                        value={exam.percentage}
+                        backgroundColorOnComplete="#6CC644"
+                        backgroundColor="#E57373"
+                      />
+                    </View>
+                  :
+                  <View>
+                    <Text style={[styles.lightFont,styles.percentage,styles.blueFont]} >{exam.percentage}%</Text>
+                    <ProgressBarAnimated
+                      width={barWidth}
+                      value={exam.percentage}
+                      backgroundColorOnComplete="#6CC644"
+                      backgroundColor="#956FCE"
+                    />
+                  </View>)
+                }
+                  <View style={[styles.flexrow]} >
+                    <Text style={[styles.lightFont]} >Questions <Text style={[styles.count]}>{exam.totalExamMarks} </Text>Total Marks
+                    <Text style={[styles.count]}> {exam.totalMarks}/{exam.totalExamMarks} </Text></Text>
+                  </View>
+                  <View style={[styles.flexrow,styles.attemptedBox]}>
+                    <Text>Submitted on:{exam.attendedDate}</Text>
+                  </View>
+              </View>
+            </TouchableOpacity>
+          </View>
+        );
+      });
+    }
     return (
       <ScrollView style={[styles.container, styles.flexcol]} >
         <View style={[styles.flexrow, styles.availableBox]}>
-          <Text style={{ fontWeight: 'bold', color: '#000', flex: 3 }}>Available exams</Text>
-          <Text style={{ color: '#676262', flex: 1, }}>View all</Text>
+          <Text style={[styles.boldFont,styles.blackFont,styles.lightFont],{ flex: 3 }}>Attempted Exams</Text>
         </View>
-        <View style={[styles.announcementBox, styles.flexrow]}>
-          <View style={[styles.flexcol, styles.innerTextBox]} >
-            <Text style={{ fontFamily: 'Avenir, Heavy', fontWeight: 'bold', color: '#000' }}>Ca 22</Text>
-            <Text style={{ fontFamily: 'Avenir, Light' }} >Staff Board Exam</Text>
-            <ProgressBarAnimated
-              width={barWidth}
-              value={this.state.progress}
-              backgroundColorOnComplete="#6CC644"
-              backgroundColor='#956FCE'
-            />
-            <Text style={{ fontFamily: 'Avenir, Light' }} >No of Questions <Text style={{ color: '#956FCE', fontWeight: '600' }}>10 </Text>Time Allocated <Text style={{ color: '#956FCE', fontWeight: '600' }}>10</Text></Text>
-            <View style={{ flexDirection: 'row' }}>
-              <Text style={[styles.endFont]}>Ends on 13 Jun 11:59 pm</Text>
-            </View>
-          </View>
-          <View style={[styles.sideBotton, styles.brightBlue]} >
-            <Text style={{ fontFamily: 'Avenir, Book', color: '#ffffff' }} >Science & Tech </Text>
-          </View>
-        </View>
-        <View style={[styles.announcementBox, styles.flexrow]}>
-          <View style={[styles.flexcol, styles.innerTextBox]} >
-            <Text style={{ fontFamily: 'Avenir, Heavy', fontWeight: 'bold', color: '#000' }}>Ca 22</Text>
-            <Text style={{ fontFamily: 'Avenir, Light', fontWeight: '500', color: 'blue' }} >{this.state.progress}%</Text>
-            <ProgressBarAnimated
-              width={barWidth}
-              value={this.state.progress}
-              backgroundColorOnComplete="#6CC644"
-              backgroundColor='#E57373'
-            />
-            <Text style={{ fontFamily: 'Avenir, Light' }} >No of Questions <Text style={{ color: '#956FCE', fontWeight: '600' }}>10 </Text>Time Allocated <Text style={{ color: '#956FCE', fontWeight: '600' }}>10</Text></Text>
-            <View style={{ flexDirection: 'row' }}>
-              <Text style={[styles.endFont]}>Ends on 13 Jun 11:59 pm</Text>
-            </View>
-          </View>
-          <View style={[styles.sideBotton, styles.green]} >
-            <Text style={{ fontFamily: 'Avenir, Book', color: '#ffffff' }} >Science & Tech </Text>
-          </View>
-        </View>
-        <View style={[styles.announcementBox, styles.flexrow]}>
-          <View style={[styles.flexcol, styles.innerTextBox]} >
-            <Text style={{ fontFamily: 'Avenir, Heavy', fontWeight: 'bold', color: '#000' }}>Ca 22</Text>
-            <Text style={{ fontFamily: 'Avenir, Light' }} >Staff Board Exam</Text>
-            <ProgressBarAnimated
-              width={barWidth}
-              value={this.state.progress}
-              backgroundColorOnComplete="#6CC644"
-              backgroundColor='#73cae6'
-            />
-            <Text style={{ fontFamily: 'Avenir, Light' }} >No of Questions <Text style={{ color: '#956FCE', fontWeight: '600' }}>10 </Text>Time Allocated <Text style={{ color: '#956FCE', fontWeight: '600' }}>10</Text></Text>
-            <View style={{ flexDirection: 'row' }}>
-              <Text style={[styles.endFont]}>Ends on 13 Jun 11:59 pm</Text>
-            </View>
-          </View>
-          <View style={[styles.sideBotton, styles.green]} >
-            <Text style={{ fontFamily: 'Avenir, Book', color: '#ffffff' }} >Science & Tech </Text>
-          </View>
-        </View>
+        {attemptedList}
       </ScrollView>
     );
   }

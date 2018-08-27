@@ -7,6 +7,7 @@ import styles from '../Assets/Style';
 import TimerMixin from 'react-timer-mixin';
 import ImageOverlay from "react-native-image-overlay";
 import CheckBox from 'react-native-check-box';
+import {handleBackButton} from './../Functions';
 import {
   View,
   ScrollView,
@@ -14,18 +15,15 @@ import {
   TouchableOpacity,
   Dimensions,
   Text,
-  TouchableHighlight,
   ToolbarAndroid,
   Alert,
   FlatList,
-  BackHandler,
   Button,
+  BackHandler,
   StyleSheet,
-  AppState,
   AsyncStorage,
 } from 'react-native';
 import URL from './../Url';
-import {handleBackButton} from './../Functions';
 
 export default class StartExam extends Component {
   constructor() {
@@ -41,10 +39,7 @@ export default class StartExam extends Component {
       ANSWER_STATUS:URL.ANSWER_STATUS,
       REVIEW:URL.REVIEW,
       SUBMIT_ANSWER:URL.SUBMIT_ANSWER,
-      appState: AppState.currentState,
       buttonDisable:true,
-      scrollViewWidth:0,
-      currentXOffset:0,
       value: null,//large size for reset/clear selection
       imageFilePath:null,
       hint:null,
@@ -87,20 +82,12 @@ export default class StartExam extends Component {
   }
 
   componentWillMount() {
-    if(this.props.navigation.state.params.examPage=="fromReview"){
-          this.state = {
-            examPage:'fromReview',
-          }
-      this.getData(this.props.navigation.state.params.qpid);
-    }else{
-      this.getData();
-    }
+    this.getData();
     BackHandler.addEventListener('hardwareBackPress', () => {
      this.submitAnswer(this.state.qpid,this.state.qid);
      handleBackButton();
      return true;
     });
-
   }
 
   prevQuestion(qpId,qId){
@@ -169,14 +156,19 @@ export default class StartExam extends Component {
       })
       .then(response => response.json())
       .then(responseSubmit=> {
-        console.log("resp from submitButton:",responseSubmit);
         this.setState({
           "qid":0,
           value:null,
           checked:false,
         })
         if(this.state.examPage=='gotoreview'){
-        return this.props.navigation.navigate("ReviewPage",{qpid:qpId,eid:this.props.navigation.state.params.eid,rmMin:this.state.rmMin,rmSec:this.state.rmSec});
+        return(
+          this.props.navigation.state.params.getData(),
+          console.log("props:",this.props),
+          console.log("props state",this.props.navigation.state.params),
+          this.props.navigation.navigate("ReviewPage",{qpid:qpId,eid:this.props.navigation.state.params.eid,rmMin:this.state.rmMin,rmSec:this.state.rmSec})
+
+      )
         }else{
           this.getData(qpId);
         }
@@ -229,17 +221,20 @@ export default class StartExam extends Component {
         const {setParams} = this.props.navigation;
         setParams({qno: resobj.data.attendedQuestionsCount,tqno:resobj.data.totalQuestionsCount});
       });
-      if(examApi=="startQuiz"){
-          //first time question fetch
-        API=this.state.HOME+this.state.START_EXAM+'startQuiz/'+data[1][1]+'?esid='+this.props.navigation.state.params.eid+'&orgid='+data[0][1];
-      }else if(examApi=="next"){
-        API=this.state.HOME+this.state.START_EXAM+'next/question/'+data[1][1]+'?orgid='+data[0][1]+'&qpid='+qpidFn;
-      }else if(examApi=="prev"){
-        API=this.state.HOME+this.state.START_EXAM+'previous/question/'+data[1][1]+'?orgid='+data[0][1]+'&qpid='+qpidFn;
-      }else if(examApi=="review"){
-        API=this.state.HOME+this.state.REVIEW+data[1][1]+'?idx='+this.state.qindex+'&orgid='+data[0][1]+'&qpid='+qpidFn;
-      }else if(examApi=="fromReview"){
-        API=this.state.HOME+this.state.REVIEW+data[1][1]+'?idx='+this.props.navigation.state.params.qindex+'&orgid='+data[0][1]+'&qpid='+qpidFn;
+      if(this.props.navigation.state.params.examPage=="fromReview"){
+        API=this.state.HOME+this.state.REVIEW+data[1][1]+'?idx='+this.props.navigation.state.params.qindex+'&orgid='+data[0][1]+'&qpid='+this.props.navigation.state.params.qpid;
+        this.props.navigation.state.params.examPage=null;
+      }else {
+        if(examApi=="startQuiz"){
+            //first time question fetch
+          API=this.state.HOME+this.state.START_EXAM+'startQuiz/'+data[1][1]+'?esid='+this.props.navigation.state.params.eid+'&orgid='+data[0][1];
+        }else if(examApi=="next"){
+          API=this.state.HOME+this.state.START_EXAM+'next/question/'+data[1][1]+'?orgid='+data[0][1]+'&qpid='+qpidFn;
+        }else if(examApi=="prev"){
+          API=this.state.HOME+this.state.START_EXAM+'previous/question/'+data[1][1]+'?orgid='+data[0][1]+'&qpid='+qpidFn;
+        }else if(examApi=="review"){
+          API=this.state.HOME+this.state.REVIEW+data[1][1]+'?idx='+this.state.qindex+'&orgid='+data[0][1]+'&qpid='+qpidFn;
+        }
       }
 
       fetch(API,{
@@ -328,31 +323,18 @@ export default class StartExam extends Component {
         this.props.navigation.navigate("ReviewPage",{qpid:this.state.qpid,eid:this.props.navigation.state.params.eid});
       }
     }, 1000);
-    BackHandler.addEventListener('hardwareBackPress', () => {
-     this.submitAnswer(this.state.qpid,this.state.qid);
-     handleBackButton();
-     return true;
-    });
-    AppState.addEventListener('change', this._handleAppStateChange);
-
   }
-
 
   componentWillUnmount () {
     //to save memory we've to clear interval
     this.interval && clearInterval(this.interval);
     this.interval = false;
-    AppState.addEventListener('change', this._handleAppStateChange);
+    BackHandler.addEventListener('hardwareBackPress', () => {
+     this.submitAnswer(this.state.qpid,this.state.qid);
+     handleBackButton();
+     return true;
+    });
   }
-
-  _handleAppStateChange = (nextAppState) => {
-
-     if (this.state.appState.match(/active/) && nextAppState === 'background') {
-         console.log('App has come to the background!');
-         this.submitAnswer(this.state.qpid,this.state.qid);
-     }
-     this.setState({appState: nextAppState});
-   }
 
   static navigationOptions = ({ navigation  }) => {
     const {state} = navigation;
@@ -378,24 +360,6 @@ export default class StartExam extends Component {
       }else{
         this.setState({checked:false})
       }
-    }
-
-    _handleScroll = (event) => {
-      console.log('currentXOffset =', event.nativeEvent.contentOffset.x);
-      newXOffset = event.nativeEvent.contentOffset.x
-      this.setState({currentXOffset:newXOffset})
-    }
-
-    leftArrow = () => {
-      eachItemOffset = this.state.scrollViewWidth / 10; // Divide by 10 because I have 10 <View> items
-      _currentXOffset =  this.state.currentXOffset - eachItemOffset;
-      this.refs.scrollView.scrollTo({x: _currentXOffset, y: 0, animated: true})
-    }
-
-    rightArrow = () => {
-      eachItemOffset = this.state.scrollViewWidth / 10; // Divide by 10 because I have 10 <View> items
-      _currentXOffset =  this.state.currentXOffset + eachItemOffset;
-      this.refs.scrollView.scrollTo({x: _currentXOffset, y: 0, animated: true})
     }
 
     render() {
@@ -486,33 +450,18 @@ export default class StartExam extends Component {
           </View>
         </View>
         <View style={[styles.flexrow]}>
-          <TouchableHighlight
-            underlayColor={'#50e5ff'}
-            style={{marginTop: 8, marginLeft:5,marginBottom: 10}}
-            onPress={this.leftArrow}>
-            <Icon name="ios-arrow-dropleft" size={22}/>
-          </TouchableHighlight>
-            <ScrollView
-              horizontal={true}
-              showsHorizontalScrollIndicator={false}
-              style={{flex:1,marginTop: 10, marginBottom: 10}}
-              pagingEnabled={true}
-              ref="scrollView"
-              onContentSizeChange={(w, h) => this.setState({scrollViewWidth:w})}
-              scrollEventThrottle={16}
-              scrollEnabled={true} // remove if you want user to swipe
-              onScroll={this._handleScroll}
-              >
+          <ScrollView horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            style={{flex:1,marginTop: 10, marginBottom: 10}}>
+            <View>
+              <Icon name="ios-arrow-dropleft" size={22}/>
+            </View>
             {progressNum}
+            <View>
+              <Icon name="ios-arrow-dropright" size={22}/>
+            </View>
           </ScrollView>
-          <TouchableHighlight
-            underlayColor={'#50e5ff'}
-            style={{marginTop: 8, marginRight:5,marginBottom: 10}}
-            onPress={this.rightArrow}>
-            <Icon name="ios-arrow-dropright" size={22}/>
-          </TouchableHighlight>
         </View>
-
       </ScrollView>
       <View style={[styles.submitButton,styles.flexrow]}>
       {
@@ -535,5 +484,4 @@ export default class StartExam extends Component {
     </View>
   );
 }
-
 }
